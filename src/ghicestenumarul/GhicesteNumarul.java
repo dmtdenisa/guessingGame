@@ -32,7 +32,7 @@ public class GhicesteNumarul extends JFrame {
     JPanel components = new JPanel();
     JPanel drawingArea;
     JLabel first;
-    JLabel second = new JLabel("Bine ati venit!");
+    JLabel second;
     JLabel third = new JLabel("Mai aveti "+lives+" incercari");
     JTextField guess = new JTextField();
     
@@ -41,6 +41,7 @@ public class GhicesteNumarul extends JFrame {
         MAX_VALUE=maxVal;
         generatedNumber= new Random().nextInt(MAX_VALUE)+1;
         _username=username;
+        second = new JLabel("Bine ai venit, "+username+"!");
         drawingArea= new JPanel(){
             {
                 setBackground(Color.CYAN);
