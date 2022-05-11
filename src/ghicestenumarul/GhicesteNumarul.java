@@ -4,28 +4,20 @@
  */
 package ghicestenumarul;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.ComponentSampleModel;
 import java.util.Random;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 /**
  *
- * @author adamaltar
+ * @author adamaltar & dumitrudenisa
  */
 public class GhicesteNumarul extends JFrame {
 
     public static int MAX_VALUE;
+    private final Timer timer;
     public String _username;
     private int lives = 5;
     private int generatedNumber;
@@ -33,18 +25,46 @@ public class GhicesteNumarul extends JFrame {
     JPanel drawingArea;
     JLabel first;
     JLabel second;
-    JLabel third = new JLabel("Mai aveti "+lives+" incercari");
+    JLabel third = new JLabel("Mai aveti "+lives+" incercari", SwingConstants.CENTER);
     JTextField guess = new JTextField();
+    JFrame alertaExpirareTimp = new JFrame();
+    JButton btnReset = new JButton();
     
     
-    public GhicesteNumarul(int maxVal, String username){
+    public GhicesteNumarul(int maxVal, String username, int interval){
         MAX_VALUE=maxVal;
         generatedNumber= new Random().nextInt(MAX_VALUE)+1;
         _username=username;
-        second = new JLabel("Bine ai venit, "+username+"!");
+        btnReset.setText("Reset");
+        btnReset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                timer.restart();
+                generatedNumber= new Random().nextInt(MAX_VALUE)+1;
+                guess.selectAll();
+                lives = 5;
+                drawingArea.repaint();
+                third.setText("Mai aveti "+lives+" incercari");
+                first.setText("Introduceti un numar intre 1 si "+MAX_VALUE);
+                guess.setEnabled(true);
+            }
+        });
+        second = new JLabel("Bine ai venit, "+username+"!", SwingConstants.CENTER);
+        ActionListener gameStopper = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                guess.setEnabled(false);
+                JOptionPane.showMessageDialog(alertaExpirareTimp,"Timpul a expirat!","Time's up",JOptionPane.WARNING_MESSAGE);
+                first.setText("GAME OVER, TIMPUL A EXPIRAT!");
+                third.setText("Numarul era: "+generatedNumber);
+            }
+        };
+        timer  = new Timer(interval, gameStopper);
+        timer.setRepeats(false);
+        timer.start();
         drawingArea= new JPanel(){
             {
-                setBackground(Color.CYAN);
+                setBackground(Color.GRAY);
             }
             @Override
             public void paintComponent(Graphics gr){
@@ -67,16 +87,48 @@ public class GhicesteNumarul extends JFrame {
             }
 
         };
-        first= new JLabel("Introduceti un numar intre 1 si "+MAX_VALUE);
-        components.setLayout(new GridLayout(4,1));
-        components.add(first);
+        first= new JLabel("Introduceti un numar intre 1 si "+MAX_VALUE, SwingConstants.CENTER);
+        components.setLayout(new GridLayout(5,1));
+        //components.add(first);
         components.add(guess);
-        components.add(second);
+        //components.add(second);
         components.add(third);
-        setLayout(new GridLayout(2,1));
-        add(components);
-        add(drawingArea);
-        setSize(300,400);
+        components.add(btnReset);
+        btnReset.setVerticalAlignment(SwingConstants.BOTTOM);
+
+
+
+        JPanel p1 = new JPanel();
+        p1.setPreferredSize(new Dimension(100,100));
+        p1.setBackground(Color.LIGHT_GRAY);
+        //p1.setBackground(Color.RED);
+        JPanel p2 = new JPanel();
+        //p2.setBackground(Color.YELLOW);
+        p2.setPreferredSize(new Dimension(350,100));
+        JPanel p3 = new JPanel();
+        //p3.setBackground(Color.BLUE);
+        p3.setPreferredSize(new Dimension(350,100));
+        JPanel compTitlu = new JPanel(new GridLayout(2,1));
+        compTitlu.add(second);
+        compTitlu.add(first);
+        JPanel p4 = new JPanel();
+
+
+        setLayout(new BorderLayout());
+        setSize(700,500);
+        add(p1,BorderLayout.NORTH);
+        add(p2,BorderLayout.WEST);
+        add(p3,BorderLayout.EAST);
+        p3.setLayout(new GridLayout(1,1));
+        p1.add(compTitlu);
+        p2.add(components);
+
+        //p2.add(btnReset);
+        p3.add(drawingArea);
+//        add(components);
+//        add(drawingArea);
+//        add(btnReset);
+        setSize(700,500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Font f = new Font("Verdana", Font.BOLD, 14);
         first.setFont(f);
@@ -84,8 +136,22 @@ public class GhicesteNumarul extends JFrame {
         third.setFont(f);
         guess.setFont(f);
         first.setOpaque(true);
-        first.setBackground(Color.YELLOW);
-        first.setForeground(Color.RED);
+        //first.setBackground(Color.YELLOW);
+        //first.setForeground(Color.RED);
+
+//        drawingArea.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                timer.restart();
+//                generatedNumber= new Random().nextInt(MAX_VALUE)+1;
+//                guess.selectAll();
+//                third.setText("Mai aveti "+lives+" incercari");
+//                first.setText("Introduceti un numar intre 1 si "+MAX_VALUE);
+//                guess.setEnabled(true);
+//            }
+//        });
+
+
         
         guess.addActionListener(new ActionListener(){
             @Override
@@ -93,6 +159,7 @@ public class GhicesteNumarul extends JFrame {
                 int userGuess = Integer.parseInt(guess.getText());
                 if (generatedNumber==userGuess){//cazul castigator
                     guess.setEnabled(false);
+                    timer.stop();
                     second.setText("Felicitari, ai ghicit!!");
                     first.setText("GAME OVER!"); 
                     lives=-1;

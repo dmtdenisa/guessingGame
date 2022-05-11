@@ -7,6 +7,7 @@ import java.awt.event.*;
 public class GameSetUp extends JFrame{
     public int maxValue=20;
     public String username=null;
+    public int durataJoc = 15000;
 
 
     JPanel p1 = new JPanel();
@@ -103,15 +104,17 @@ public class GameSetUp extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 if(normalRadioBtn.isSelected()){
                     maxValue=50;
+                    durataJoc = 12000;
                 }else if(hardRadioBtn.isSelected()){
                     maxValue=100;
+                    durataJoc = 9000;
                 }
                 username=inputUsername.getText();
                 if(username.length()<1){
                     JOptionPane.showMessageDialog(alertaUser,"Introduceti username-ul!","Alerta",JOptionPane.WARNING_MESSAGE);
                 }else {
                     setVisible(false);
-                    new GhicesteNumarul(maxValue,username).setVisible(true);
+                    new GhicesteNumarul(maxValue,username,durataJoc).setVisible(true);
                 }
             }
         });
